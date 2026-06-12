@@ -6,6 +6,10 @@ package:
 
 build:
   number: 0
+  # NVPL targets NVIDIA Grace (linux-aarch64/sbsa) only; both outputs are
+  # noarch: generic metapackages and only need to be built once, on a Linux
+  # worker (same pattern as cf-nvidia-tools-feedstock).
+  skip: true  # [win or osx]
 
 # All of the NVPL components development packages depend on this mutex which
 # constrains the environment to a matching set of packages. The mutex only
@@ -34,6 +38,13 @@ outputs:
   - name: libnvpl-dev
     build:
       noarch: generic
+      # Skipped until all libnvpl-* component -dev packages are released to
+      # pkgs/main: the component feedstocks build sequentially against
+      # defaults, and this metapackage's run deps would not resolve before
+      # then. The _nvpl_dev_mutex output above must ship FIRST (every
+      # component -dev package depends on it). Remove this skip in the final
+      # pass of the NVPL release chain (PKG-15071).
+      skip: true
     requirements:
       run:
         - {{ pin_subpackage('_nvpl_dev_mutex', exact=True) }}
@@ -51,10 +62,19 @@ outputs:
 about:
   home: https://developer.nvidia.com/nvpl
   license: LicenseRef-NVIDIA-End-User-License-Agreement
+  license_family: Proprietary
   license_url: https://docs.nvidia.com/nvpl/license.html
   summary: >-
     The NVIDIA Performance Libraries (NVPL). For convenience only! Not to be
     used in host requirements for conda recipes!
+  description: >-
+    The NVIDIA Performance Libraries (NVPL) are a collection of high performance
+    mathematical libraries optimized for the NVIDIA Grace Armv9.0 architecture.
+    These CPU-only libraries have no dependencies on CUDA or CTK, and are drop in
+    replacements for standard C and Fortran mathematical APIs allowing HPC
+    applications to achieve maximum performance on the Grace platform.
+  doc_url: https://docs.nvidia.com/nvpl/
+  dev_url: https://developer.nvidia.com/nvpl
 
 extra:
   feedstock-name: libnvpl
