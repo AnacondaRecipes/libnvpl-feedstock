@@ -13,12 +13,11 @@ source:
 
 build:
   number: 0
-  # NVPL targets NVIDIA Grace (linux-aarch64/sbsa) only. Upstream (nvidia
-  # channel / conda-forge) ships these metapackages as noarch: generic; they
-  # are built as regular linux-aarch64 packages here instead, following the
-  # cuda-runtime-feedstock metapackage convention — PBP builds noarch recipes
-  # once per non-skipped platform, which would publish colliding noarch
-  # artifacts.
+  # These are 'technically' not noarch packages: NVPL targets NVIDIA Grace
+  # (linux-aarch64/sbsa) only, and every package these constrain or depend on
+  # exists only on linux-aarch64. Therefore upstream's 'noarch: generic' is
+  # replaced with 'skip: true' to avoid building on unsupported platforms
+  # (same convention as cuda-runtime-feedstock).
   skip: true  # [not (linux and aarch64)]
 
 # All of the NVPL components development packages depend on this mutex which
