@@ -77,6 +77,9 @@ about:
   dev_url: https://developer.nvidia.com/nvpl
 
 extra:
+  skip-lints:
+    # metapackage outputs only — there is no source to fetch
+    - missing_source_section
   feedstock-name: libnvpl
   recipe-maintainers:
     - conda-forge/cuda
