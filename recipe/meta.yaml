@@ -4,12 +4,22 @@ package:
   name: libnvpl-split
   version: {{ (version ~ ".0.0").split('.')[:3] | join('.') }}
 
+source:
+  # License-only source: the outputs are metapackages with no payload, but the
+  # recipe needs the NVPL license text for license_file (and the linter
+  # requires a source section).
+  url: https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_common/LICENSE.txt
+  sha256: d81174652f0c448a5736afc5d50663606863bfd6ee8c8416fbd9a628c6f8802f
+
 build:
   number: 0
-  # NVPL targets NVIDIA Grace (linux-aarch64/sbsa) only; both outputs are
-  # noarch: generic metapackages and only need to be built once, on a Linux
-  # worker (same pattern as cf-nvidia-tools-feedstock).
-  skip: true  # [win or osx]
+  # NVPL targets NVIDIA Grace (linux-aarch64/sbsa) only. Upstream (nvidia
+  # channel / conda-forge) ships these metapackages as noarch: generic; they
+  # are built as regular linux-aarch64 packages here instead, following the
+  # cuda-runtime-feedstock metapackage convention — PBP builds noarch recipes
+  # once per non-skipped platform, which would publish colliding noarch
+  # artifacts.
+  skip: true  # [not (linux and aarch64)]
 
 # All of the NVPL components development packages depend on this mutex which
 # constrains the environment to a matching set of packages. The mutex only
@@ -20,8 +30,6 @@ build:
 outputs:
 
   - name: _nvpl_dev_mutex
-    build:
-      noarch: generic
     requirements:
       run_constrained:
         - libnvpl-blas-dev 0.6.0.*
@@ -33,11 +41,11 @@ outputs:
         - libnvpl-sparse-dev 0.6.0.*
         - libnvpl-tensor-dev 0.3.3.*
     test:
-      commands: []
+      commands:
+        - exit 0
 
   - name: libnvpl-dev
     build:
-      noarch: generic
       # Skipped until all libnvpl-* component -dev packages are released to
       # pkgs/main: the component feedstocks build sequentially against
       # defaults, and this metapackage's run deps would not resolve before
@@ -57,12 +65,14 @@ outputs:
         - libnvpl-sparse-dev
         - libnvpl-tensor-dev
     test:
-      commands: []
+      commands:
+        - exit 0
 
 about:
   home: https://developer.nvidia.com/nvpl
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   license_family: Proprietary
+  license_file: LICENSE.txt
   license_url: https://docs.nvidia.com/nvpl/license.html
   summary: >-
     The NVIDIA Performance Libraries (NVPL). For convenience only! Not to be
@@ -77,9 +87,6 @@ about:
   dev_url: https://developer.nvidia.com/nvpl
 
 extra:
-  skip-lints:
-    # metapackage outputs only — there is no source to fetch
-    - missing_source_section
   feedstock-name: libnvpl
   recipe-maintainers:
     - conda-forge/cuda
