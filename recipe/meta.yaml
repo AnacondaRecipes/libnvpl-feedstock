@@ -4,13 +4,6 @@ package:
   name: libnvpl-split
   version: {{ (version ~ ".0.0").split('.')[:3] | join('.') }}
 
-source:
-  # License-only source: the outputs are metapackages with no payload, but the
-  # recipe needs the NVPL license text for license_file (and the linter
-  # requires a source section).
-  url: https://developer.download.nvidia.com/compute/nvpl/redist/nvpl_common/LICENSE.txt
-  sha256: d81174652f0c448a5736afc5d50663606863bfd6ee8c8416fbd9a628c6f8802f
-
 build:
   number: 0
   # These are 'technically' not noarch packages: NVPL targets NVIDIA Grace
@@ -71,7 +64,6 @@ about:
   home: https://developer.nvidia.com/nvpl
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   license_family: Proprietary
-  license_file: LICENSE.txt
   license_url: https://docs.nvidia.com/nvpl/latest/license.html
   summary: >-
     The NVIDIA Performance Libraries (NVPL). For convenience only! Not to be
@@ -89,6 +81,8 @@ extra:
   skip-lints:
     # license_url is kept on all Nvidia feedstocks per team convention
     - deprecate_license_url
+    # metapackage outputs only — no source, matching the conda-forge recipe
+    - missing_source_section
   feedstock-name: libnvpl
   recipe-maintainers:
     - conda-forge/cuda
