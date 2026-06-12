@@ -73,7 +73,6 @@ about:
   license: LicenseRef-NVIDIA-End-User-License-Agreement
   license_family: Proprietary
   license_file: LICENSE.txt
-  license_url: https://docs.nvidia.com/nvpl/license.html
   summary: >-
     The NVIDIA Performance Libraries (NVPL). For convenience only! Not to be
     used in host requirements for conda recipes!
