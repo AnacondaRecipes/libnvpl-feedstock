@@ -1,0 +1,8 @@
+anaconda_config_version: 1
+upstream_sources:
+  - webpage:
+      url: https://developer.download.nvidia.com/compute/nvpl/redist/
+      regex: 'redistrib_(\d+\.\d+)\.json'
+    packages:
+      - _nvpl_dev_mutex
+      - libnvpl-dev
