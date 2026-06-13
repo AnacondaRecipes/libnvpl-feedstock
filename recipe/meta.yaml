@@ -6,6 +6,12 @@ package:
 
 build:
   number: 0
+  # These are 'technically' not noarch packages: NVPL targets NVIDIA Grace
+  # (linux-aarch64/sbsa) only, and every package these constrain or depend on
+  # exists only on linux-aarch64. Therefore upstream's 'noarch: generic' is
+  # replaced with 'skip: true' to avoid building on unsupported platforms
+  # (same convention as cuda-runtime-feedstock).
+  skip: true  # [not (linux and aarch64)]
 
 # All of the NVPL components development packages depend on this mutex which
 # constrains the environment to a matching set of packages. The mutex only
@@ -16,8 +22,6 @@ build:
 outputs:
 
   - name: _nvpl_dev_mutex
-    build:
-      noarch: generic
     requirements:
       run_constrained:
         - libnvpl-blas-dev 0.6.0.*
@@ -29,11 +33,18 @@ outputs:
         - libnvpl-sparse-dev 0.6.0.*
         - libnvpl-tensor-dev 0.3.3.*
     test:
-      commands: []
+      commands:
+        - exit 0
 
   - name: libnvpl-dev
     build:
-      noarch: generic
+      # Skipped until all libnvpl-* component -dev packages are released to
+      # pkgs/main: the component feedstocks build sequentially against
+      # defaults, and this metapackage's run deps would not resolve before
+      # then. The _nvpl_dev_mutex output above must ship FIRST (every
+      # component -dev package depends on it). Remove this skip in the final
+      # pass of the NVPL release chain (PKG-15071).
+      skip: true
     requirements:
       run:
         - {{ pin_subpackage('_nvpl_dev_mutex', exact=True) }}
@@ -46,17 +57,32 @@ outputs:
         - libnvpl-sparse-dev
         - libnvpl-tensor-dev
     test:
-      commands: []
+      commands:
+        - exit 0
 
 about:
   home: https://developer.nvidia.com/nvpl
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  license_url: https://docs.nvidia.com/nvpl/license.html
+  license_family: Proprietary
+  license_url: https://docs.nvidia.com/nvpl/latest/license.html
   summary: >-
     The NVIDIA Performance Libraries (NVPL). For convenience only! Not to be
     used in host requirements for conda recipes!
+  description: >-
+    The NVIDIA Performance Libraries (NVPL) are a collection of high performance
+    mathematical libraries optimized for the NVIDIA Grace Armv9.0 architecture.
+    These CPU-only libraries have no dependencies on CUDA or CTK, and are drop in
+    replacements for standard C and Fortran mathematical APIs allowing HPC
+    applications to achieve maximum performance on the Grace platform.
+  doc_url: https://docs.nvidia.com/nvpl/
+  dev_url: https://developer.nvidia.com/nvpl
 
 extra:
+  skip-lints:
+    # license_url is kept on all Nvidia feedstocks per team convention
+    - deprecate_license_url
+    # metapackage outputs only — no source, matching the conda-forge recipe
+    - missing_source_section
   feedstock-name: libnvpl
   recipe-maintainers:
     - conda-forge/cuda
