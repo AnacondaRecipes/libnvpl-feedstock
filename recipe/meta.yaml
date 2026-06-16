@@ -39,7 +39,10 @@ outputs:
   - name: libnvpl-dev
     requirements:
       run:
-        - {{ pin_subpackage('_nvpl_dev_mutex', exact=True) }}
+        # The mutex is already released to pkgs/main (pass 1) and is
+        # --skip-existing'd on rebuild, so pin_subpackage(exact) can't find a
+        # local artifact. Reference the released build by version instead.
+        - _nvpl_dev_mutex {{ version }}
         - libnvpl-blas-dev
         - libnvpl-common-dev
         - libnvpl-fft-dev
