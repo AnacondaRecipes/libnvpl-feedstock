@@ -83,6 +83,9 @@ extra:
     - deprecate_license_url
     # metapackage outputs only — no source, matching the conda-forge recipe
     - missing_source_section
+    # _nvpl_dev_mutex is listed in anaconda.yaml but its output is skipped in
+    # pass 2 (already released), so the 1-to-1 check can't find it at render.
+    - missing_source_tracking
   feedstock-name: libnvpl
   recipe-maintainers:
     - conda-forge/cuda
