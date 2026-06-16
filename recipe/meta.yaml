@@ -37,14 +37,6 @@ outputs:
         - exit 0
 
   - name: libnvpl-dev
-    build:
-      # Skipped until all libnvpl-* component -dev packages are released to
-      # pkgs/main: the component feedstocks build sequentially against
-      # defaults, and this metapackage's run deps would not resolve before
-      # then. The _nvpl_dev_mutex output above must ship FIRST (every
-      # component -dev package depends on it). Remove this skip in the final
-      # pass of the NVPL release chain (PKG-15071).
-      skip: true
     requirements:
       run:
         - {{ pin_subpackage('_nvpl_dev_mutex', exact=True) }}
@@ -63,7 +55,7 @@ outputs:
 about:
   home: https://developer.nvidia.com/nvpl
   license: LicenseRef-NVIDIA-End-User-License-Agreement
-  license_family: Proprietary
+  license_family: Other
   license_url: https://docs.nvidia.com/nvpl/latest/license.html
   summary: >-
     The NVIDIA Performance Libraries (NVPL). For convenience only! Not to be
