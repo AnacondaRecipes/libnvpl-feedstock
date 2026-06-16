@@ -22,6 +22,11 @@ build:
 outputs:
 
   - name: _nvpl_dev_mutex
+    build:
+      # Already released to pkgs/main in pass 1. Skipped here so the pass-2
+      # build (which only adds libnvpl-dev) doesn't try to finalize the
+      # already-existing mutex artifact under --skip-existing.
+      skip: true
     requirements:
       run_constrained:
         - libnvpl-blas-dev 0.6.0.*
@@ -39,7 +44,10 @@ outputs:
   - name: libnvpl-dev
     requirements:
       run:
-        - {{ pin_subpackage("_nvpl_dev_mutex", exact=True) }}
+        # The mutex is already released to pkgs/main (pass 1) and is
+        # --skip-existing'd on rebuild, so pin_subpackage(exact) can't find a
+        # local artifact. Reference the released build by version instead.
+        - _nvpl_dev_mutex {{ version }}
         - libnvpl-blas-dev
         - libnvpl-common-dev
         - libnvpl-fft-dev
@@ -75,6 +83,9 @@ extra:
     - deprecate_license_url
     # metapackage outputs only — no source, matching the conda-forge recipe
     - missing_source_section
+    # _nvpl_dev_mutex is listed in anaconda.yaml but its output is skipped in
+    # pass 2 (already released), so the 1-to-1 check can't find it at render.
+    - missing_source_tracking
   feedstock-name: libnvpl
   recipe-maintainers:
     - conda-forge/cuda
