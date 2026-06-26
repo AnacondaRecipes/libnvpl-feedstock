@@ -5,7 +5,11 @@ package:
   version: {{ (version ~ ".0.0").split('.')[:3] | join('.') }}
 
 build:
-  number: 0
+  # Bumped to 1 for pass 2 (adds the libnvpl-dev metapackage). The bump rebuilds
+  # _nvpl_dev_mutex at build 1 so libnvpl-dev's pin_subpackage(exact) resolves it
+  # locally. libnvpl-common-dev was rebuilt with an unpinned mutex dep
+  # (libnvpl-common#2), so the new mutex build no longer conflicts with the chain.
+  number: 1
   # These are 'technically' not noarch packages: NVPL targets NVIDIA Grace
   # (linux-aarch64/sbsa) only, and every package these constrain or depend on
   # exists only on linux-aarch64. Therefore upstream's 'noarch: generic' is
@@ -37,17 +41,9 @@ outputs:
         - exit 0
 
   - name: libnvpl-dev
-    build:
-      # Skipped until all libnvpl-* component -dev packages are released to
-      # pkgs/main: the component feedstocks build sequentially against
-      # defaults, and this metapackage's run deps would not resolve before
-      # then. The _nvpl_dev_mutex output above must ship FIRST (every
-      # component -dev package depends on it). Remove this skip in the final
-      # pass of the NVPL release chain (PKG-15071).
-      skip: true
     requirements:
       run:
-        - {{ pin_subpackage('_nvpl_dev_mutex', exact=True) }}
+        - {{ pin_subpackage("_nvpl_dev_mutex", exact=True) }}
         - libnvpl-blas-dev
         - libnvpl-common-dev
         - libnvpl-fft-dev
