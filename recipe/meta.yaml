@@ -1,15 +1,12 @@
-{% set version = "26.5.0" %}
+{% set version = "26.10.0" %}
 
 package:
   name: libnvpl-split
   version: {{ (version ~ ".0.0").split('.')[:3] | join('.') }}
 
 build:
-  # Bumped to 1 for pass 2 (adds the libnvpl-dev metapackage). The bump rebuilds
-  # _nvpl_dev_mutex at build 1 so libnvpl-dev's pin_subpackage(exact) resolves it
-  # locally. libnvpl-common-dev was rebuilt with an unpinned mutex dep
-  # (libnvpl-common#2), so the new mutex build no longer conflicts with the chain.
-  number: 1
+  # First build phase - only building the mutex
+  number: 0
   # These are 'technically' not noarch packages: NVPL targets NVIDIA Grace
   # (linux-aarch64/sbsa) only, and every package these constrain or depend on
   # exists only on linux-aarch64. Therefore upstream's 'noarch: generic' is
@@ -28,19 +25,21 @@ outputs:
   - name: _nvpl_dev_mutex
     requirements:
       run_constrained:
-        - libnvpl-blas-dev 0.6.0.*
-        - libnvpl-common-dev 0.3.5.*
-        - libnvpl-fft-dev 0.6.0.*
-        - libnvpl-lapack-dev 0.4.0.*
-        - libnvpl-rand-dev 0.5.4.*
-        - libnvpl-scalapack-dev 0.2.4.*
-        - libnvpl-sparse-dev 0.6.0.*
-        - libnvpl-tensor-dev 0.3.3.*
+        - libnvpl-blas-dev 0.6.1.*
+        - libnvpl-common-dev 0.3.6.*
+        - libnvpl-fft-dev 0.6.1.*
+        - libnvpl-lapack-dev 0.4.1.*
+        - libnvpl-rand-dev 0.6.0.*
+        - libnvpl-scalapack-dev 0.2.5.*
+        - libnvpl-sparse-dev 0.6.1.*
+        - libnvpl-tensor-dev 0.3.4.*
     test:
       commands:
         - exit 0
 
   - name: libnvpl-dev
+    build:
+      skip: true
     requirements:
       run:
         - {{ pin_subpackage("_nvpl_dev_mutex", exact=True) }}
