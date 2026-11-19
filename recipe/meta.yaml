@@ -5,8 +5,8 @@ package:
   version: {{ (version ~ ".0.0").split('.')[:3] | join('.') }}
 
 build:
-  # First build phase - only building the mutex
-  number: 0
+  # Second build phase - Building mutex and -dev metapackage
+  number: 1
   # These are 'technically' not noarch packages: NVPL targets NVIDIA Grace
   # (linux-aarch64/sbsa) only, and every package these constrain or depend on
   # exists only on linux-aarch64. Therefore upstream's 'noarch: generic' is
@@ -38,8 +38,6 @@ outputs:
         - exit 0
 
   - name: libnvpl-dev
-    build:
-      skip: true
     requirements:
       run:
         - {{ pin_subpackage("_nvpl_dev_mutex", exact=True) }}
